@@ -5,8 +5,11 @@ const Merch = require('../models/Merch');
 
 
 const isAuthenticated = require('../middleware/isAuthenticated');
-const isMerchOwner = require('../middleware/isMerchOwner')
+const isStaff = require("../middleware/isStaff");
+const isProfileOwner = require('../middleware/isProfileOwner');
+const isMerchOwner = require("../middleware/isMerchOwner");
 
+// DISPLAY ALL MERCH
 router.get('/', (req, res, next) => {
   
     Merch.find()
@@ -20,7 +23,28 @@ router.get('/', (req, res, next) => {
 
 });
 
-router.post('/new-merch', isAuthenticated, (req, res, next) => {
+//SEE ITEM INFO
+router.get('/merch-detail/:merchId', (req, res, next) => {
+
+    const { merchId } = req.params
+
+    Merch.findById(merchId)
+        .populate({
+            path: 'comments',
+            populate: { path: 'author'}
+        })
+        .then((foundMerch) => {
+            res.json(foundMerch)
+        })
+        .catch((err) => {
+            console.log(err)
+            next(err)
+        })
+
+})
+
+//CREATE A NEW ITEM
+router.post('/new-merch', isAuthenticated, isStaff, (req, res, next) => {
 
     const { owner, name, image, size, description, cost } = req.body
 
@@ -44,26 +68,8 @@ router.post('/new-merch', isAuthenticated, (req, res, next) => {
 
 })
 
-router.get('/merch-detail/:merchId', (req, res, next) => {
-
-    const { merchId } = req.params
-
-    Merch.findById(merchId)
-        .populate({
-            path: 'comments',
-            populate: { path: 'author'}
-        })
-        .then((foundMerch) => {
-            res.json(foundMerch)
-        })
-        .catch((err) => {
-            console.log(err)
-            next(err)
-        })
-
-})
-
-router.post('/merch-update/:merchId', isAuthenticated, isMerchOwner, (req, res, next) => {
+//UPDATE ITEM INFO
+router.post('/merch-update/:merchId', isAuthenticated, isStaff, isMerchOwner, (req, res, next) => {
 
     const { merchId } = req.params
 
@@ -90,7 +96,8 @@ router.post('/merch-update/:merchId', isAuthenticated, isMerchOwner, (req, res, 
 
 })
 
-router.post('/delete-merch/:merchId', isAuthenticated, isMerchOwner, (req, res, next) => {
+//DELETE ITEM
+router.post('/delete-merch/:merchId', isAuthenticated, isStaff, isMerchOwner, (req, res, next) => {
 
     const { merchId } = req.params
 

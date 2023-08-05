@@ -3,12 +3,13 @@ var router = express.Router();
 const User = require("../models/User");
 const isAuthenticated = require('../middleware/isAuthenticated');
 const isProfileOwner = require('../middleware/isProfileOwner');
+const isStaff = require("../middleware/isStaff")
 
 /* USER ROUTES */
 
 //SEE USER DETAIL 
 
-router.get('/user-detail/userId', (req, res, next) =>  {
+router.get('/user-detail/:userId', (req, res, next) =>  {
   
     const { userId } = req.params
   
@@ -23,7 +24,7 @@ router.get('/user-detail/userId', (req, res, next) =>  {
     })
   });
 
-  //UPDATE PROFILE
+  //UPDATE PROFILE REGULAR USERS
 router.post('/user-update/:userId', isAuthenticated, isProfileOwner, (req, res, next) => {
 
     const { userId } = req.params
@@ -49,6 +50,27 @@ router.post('/user-update/:userId', isAuthenticated, isProfileOwner, (req, res, 
     })
   
   })
+
+  //UPDATE PROFILE STAFF USERS:
+  // UPDATE TEAM FOR STAFF USER
+router.post('/update-team/:userId', isAuthenticated, isStaff, (req, res, next) => {
+  const { userId } = req.params;
+  const { team } = req.body;
+
+  User.findByIdAndUpdate(
+    userId,
+    { team },
+    { new: true }
+  )
+  .then((updatedUser) => {
+    res.json(updatedUser);
+  })
+  .catch((err) => {
+    console.log(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  });
+});
+
   
   module.exports = router;
   
