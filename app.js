@@ -7,9 +7,12 @@ var mongoose = require('mongoose')
 var cors = require('cors')
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 var authRouter = require('./routes/auth');
-var staffRouter = require("./routes/staff");
+var usersRouter = require('./routes/users');
+var cartRouter = require("./routes/cart");
+var merchRouter = require("./routes/merch");
+
+
 
 
 var app = express();
@@ -39,7 +42,9 @@ app.use(
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use("/auth", authRouter );
-app.use("/staff",staffRouter )
+app.use("/cart", cartRouter);
+app.use("/merch", merchRouter);
+
 
 
 mongoose
