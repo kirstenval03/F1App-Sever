@@ -31,7 +31,7 @@ router.post('/create', isAuthenticated, (req, res, next) => {
     owner: req.user._id,
     total,
     timeLeft: expiry,
-    item: [itemId], // Create an array with the merchId
+    item: [itemId], 
   })
     .then((createdCart) => {
       res.json(createdCart);
@@ -50,7 +50,7 @@ router.post('/update', isAuthenticated, (req, res, next) => {
     cartId,
     {
       total,
-      $addToSet: { items: itemId }, // Use $addToSet to avoid duplicate merch items
+      $addToSet: { items: itemId }, 
     },
     { new: true }
   )

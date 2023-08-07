@@ -17,7 +17,7 @@ router.get('/', (req, res, next) => {
             res.json(allItems)
         })
         .catch((err) => {
-            console.log(err)
+            console.error(err); 
             next(err)
         })
 
@@ -44,7 +44,7 @@ router.get('/item-detail/:itemId', (req, res, next) => {
 })
 
 //CREATE A NEW ITEM
-router.post('/new-item', isAuthenticated, isStaff, (req, res, next) => {
+router.post('/add-item', isAuthenticated, isStaff, (req, res, next) => {
 
     const { owner, name, image, size, description, cost } = req.body
 
