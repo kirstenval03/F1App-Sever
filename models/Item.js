@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const merchSchema = new Schema(
+const itemSchema = new Schema(
     {
         owner: {type: Schema.Types.ObjectId, ref: 'User'},
         name: String, 
@@ -17,4 +17,4 @@ const merchSchema = new Schema(
     }
 )
 
-module.exports = model('Merch', merchSchema)
+module.exports = model('Item', itemSchema)

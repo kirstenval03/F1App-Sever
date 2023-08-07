@@ -10,7 +10,7 @@ var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var usersRouter = require('./routes/users');
 var cartRouter = require("./routes/cart");
-var merchRouter = require("./routes/merch");
+var itemsRouter = require("./routes/items");
 
 
 
@@ -43,7 +43,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use("/auth", authRouter );
 app.use("/cart", cartRouter);
-app.use("/merch", merchRouter);
+app.use("/items", itemsRouter);
 
 
 

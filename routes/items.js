@@ -1,20 +1,20 @@
 var express = require('express');
 var router = express.Router();
 
-const Merch = require('../models/Merch');
+const Item = require('../models/Item');
 
 
 const isAuthenticated = require('../middleware/isAuthenticated');
 const isStaff = require("../middleware/isStaff");
 const isProfileOwner = require('../middleware/isProfileOwner');
-const isMerchOwner = require("../middleware/isMerchOwner");
+const isItemOwner = require("../middleware/isItemOwner");
 
-// DISPLAY ALL MERCH
+// DISPLAY ALL ITEMS
 router.get('/', (req, res, next) => {
   
-    Merch.find()
-        .then((allMerch) => {
-            res.json(allMerch)
+    Item.find()
+        .then((allItems) => {
+            res.json(allItems)
         })
         .catch((err) => {
             console.log(err)
@@ -23,18 +23,18 @@ router.get('/', (req, res, next) => {
 
 });
 
-//SEE ITEM INFO
-router.get('/merch-detail/:merchId', (req, res, next) => {
+//SEE ITEM DETAILS
+router.get('/item-detail/:itemId', (req, res, next) => {
 
-    const { merchId } = req.params
+    const { itemId } = req.params
 
-    Merch.findById(merchId)
+    Item.findById(itemId)
         .populate({
             path: 'comments',
             populate: { path: 'author'}
         })
-        .then((foundMerch) => {
-            res.json(foundMerch)
+        .then((foundItem) => {
+            res.json(foundItem)
         })
         .catch((err) => {
             console.log(err)
@@ -44,11 +44,11 @@ router.get('/merch-detail/:merchId', (req, res, next) => {
 })
 
 //CREATE A NEW ITEM
-router.post('/new-merch', isAuthenticated, isStaff, (req, res, next) => {
+router.post('/new-item', isAuthenticated, isStaff, (req, res, next) => {
 
     const { owner, name, image, size, description, cost } = req.body
 
-    Merch.create(
+    Item.create(
         { 
             owner, 
             name, 
@@ -58,8 +58,8 @@ router.post('/new-merch', isAuthenticated, isStaff, (req, res, next) => {
             cost 
         }
         )
-        .then((newMerch) => {
-            res.json(newMerch)
+        .then((newItem) => {
+            res.json(newItem)
         })
         .catch((err) => {
             console.log(err)
@@ -69,14 +69,14 @@ router.post('/new-merch', isAuthenticated, isStaff, (req, res, next) => {
 })
 
 //UPDATE ITEM INFO
-router.post('/merch-update/:merchId', isAuthenticated, isStaff, isMerchOwner, (req, res, next) => {
+router.post('/item-update/:itemId', isAuthenticated, isStaff, isItemOwner, (req, res, next) => {
 
-    const { merchId } = req.params
+    const { itemId } = req.params
 
     const { name, image, size, description, cost } = req.body
 
-    Merch.findByIdAndUpdate(
-        merchId,
+    Item.findByIdAndUpdate(
+        itemId,
         {
             name, 
             image,  
@@ -86,8 +86,8 @@ router.post('/merch-update/:merchId', isAuthenticated, isStaff, isMerchOwner, (r
         },
         { new: true}
     )
-        .then((updatedMerch) => {
-            res.json(updatedMerch)
+        .then((updatedItem) => {
+            res.json(updatedItem)
         })
         .catch((err) => {
             console.log(err)
@@ -97,13 +97,13 @@ router.post('/merch-update/:merchId', isAuthenticated, isStaff, isMerchOwner, (r
 })
 
 //DELETE ITEM
-router.post('/delete-merch/:merchId', isAuthenticated, isStaff, isMerchOwner, (req, res, next) => {
+router.post('/delete-item/:itemId', isAuthenticated, isStaff, isItemOwner, (req, res, next) => {
 
-    const { merchId } = req.params
+    const { itemId } = req.params
 
-    Merch.findByIdAndDelete(merchId)
-        .then((deletedMerch) => {
-            res.json(deletedMerch)
+    Item.findByIdAndDelete(itemId)
+        .then((deletedItem) => {
+            res.json(deletedItem)
         })
         .catch((err) => {
             console.log(err)

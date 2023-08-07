@@ -10,12 +10,11 @@ const User = require("../models/User");
 
 const saltRounds = 10;
 
-
 router.post("/signup", (req, res, next) => {
-  const { email, password, fullName, username  } = req.body;
+  const { email, password, fullName, username } = req.body;
 
   if (email === "" || password === "") {
-    res.status(400).json({ message: "Provide email, password and name" });
+    res.status(400).json({ message: "Provide email, password, and name" });
     return;
   }
 
@@ -25,17 +24,11 @@ router.post("/signup", (req, res, next) => {
     return;
   }
 
-  // Use regex to validate the password format
-  // const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
-  // if (!passwordRegex.test(password)) {
-  //   res.status(400).json({ message: 'Password must have at least 6 characters and contain at least one number, one lowercase and one uppercase letter.' });
-  //   return;
-  // }
-
+  // Determine if the user is a staff member
+  const isStaff = email.endsWith('@formula1.com');
 
   User.findOne({ email })
     .then((foundUser) => {
-
       if (foundUser) {
         res.status(400).json({ message: "User already exists." });
         return;
@@ -44,18 +37,17 @@ router.post("/signup", (req, res, next) => {
       const salt = bcrypt.genSaltSync(saltRounds);
       const hashedPassword = bcrypt.hashSync(password, salt);
 
-      User.create({ email, password: hashedPassword, fullName, username, isStaff})
+      User.create({ email, password: hashedPassword, fullName, username, isStaff })
         .then((createdUser) => {
-
           const { email, _id, fullName, username, isStaff } = createdUser;
 
-          const payload = { email, _id, fullName, username, isStaff};
+          const payload = { email, _id, fullName, username, isStaff };
 
           const authToken = jwt.sign(payload, process.env.SECRET, {
             algorithm: "HS256",
             expiresIn: "6h",
           });
-  
+
           res.status(200).json({ authToken });
         })
         .catch((err) => {
@@ -80,7 +72,6 @@ router.post("/login", (req, res, next) => {
   User.findOne({ email })
     .then((foundUser) => {
       if (!foundUser) {
-
         res.status(401).json({ message: "User not found." });
         return;
       }
@@ -88,11 +79,8 @@ router.post("/login", (req, res, next) => {
       const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
 
       if (passwordCorrect) {
-
-        const { email, _id, fullName,  username, isStaff} = foundUser;
-
-        const payload = { email, _id, fullName,  username, isStaff };
-
+        const { email, _id, fullName, username, isStaff } = foundUser;
+        const payload = { email, _id, fullName, username, isStaff };
         const authToken = jwt.sign(payload, process.env.SECRET, {
           algorithm: "HS256",
           expiresIn: "6h",
@@ -107,9 +95,7 @@ router.post("/login", (req, res, next) => {
 });
 
 router.get("/verify", isAuthenticated, (req, res, next) => {
-
   console.log("req.user", req.user);
-
   res.status(200).json(req.user);
 });
 
