@@ -44,7 +44,8 @@ router.get('/item-detail/:itemId', (req, res, next) => {
 })
 
 //CREATE A NEW ITEM
-router.post('/add-item', isAuthenticated, isStaff, (req, res, next) => {
+router.post('/new-item', isAuthenticated, isStaff, (req, res, next) => {
+    console.log("Received POST request at /new-item");
 
     const { owner, name, image, size, description, cost } = req.body
 
