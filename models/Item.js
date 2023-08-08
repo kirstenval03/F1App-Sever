@@ -9,7 +9,6 @@ const itemSchema = new Schema(
         description: String,
         cost: {
             type: Number,
-            default: 0
         },
     },
     {

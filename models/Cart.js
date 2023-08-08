@@ -7,6 +7,10 @@ const cartSchema = new Schema(
             type: Number,
             default: 0
         },
+        shipping: {
+            type:Number,
+            default: 10
+        },
 
         total: {
             type: Number,
