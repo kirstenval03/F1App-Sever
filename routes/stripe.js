@@ -34,8 +34,8 @@ router.post('/create-checkout-session/:cartId', isAuthenticated, async (req, res
             payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
-            success_url: `${process.env.CLIENT_URI}/`,
-            cancel_url: `${process.env.CLIENT_URI}/`,
+            success_url: `${process.env.CLIENT_URI}/items?payment=success`,
+            cancel_url: `${process.env.CLIENT_URI}/items?payment=cancel`,
         });
         console.log("Session Id:", session.id);
 
