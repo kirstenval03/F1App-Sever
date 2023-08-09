@@ -81,46 +81,98 @@ router.post('/update', isAuthenticated, async (req, res, next) => {
 
 })
 
-router.post('/remove-item/:itemId', isAuthenticated, async (req, res, next) => {
-    
+router.post("/remove-item/:itemId", isAuthenticated, (req, res, next) => {
+    const { itemId } = req.params;  
+    const cartId = Object.keys(req.body)[0]
+  
+    console.log("Cart ID:", cartId);
+    console.log("Req body:", req.body);
+  
+    Cart.findByIdAndUpdate(
+      cartId,
+      {
+        $pull: { items: itemId },
+      },
+      { new: true }
+    )
+      .populate("items")
+      .then((updatedCart) => {
+        console.log("updatedCart:", updatedCart)
+        if(!updatedCart.items.length){
+          Cart.findByIdAndDelete(cartId)
+          .then((deletedCart) => {
+              if (deletedCart) {
+                console.log("Deleted cart ===>",deletedCart)
+                  res.json(deletedCart);
+              } else {
+                  res.status(404).json({ message: 'Item not found' });
+              }
+          })
+          .catch((err) => {
+              console.log(err);
+              next(err);
+          });
+        }
+        res.json(updatedCart);
+      })
+      .catch((err) => {
+        console.log(err);
+        next(err);
+      });
+  });
+
+  router.post("/decrease-item/:itemId", isAuthenticated, async (req, res, next) => {
 
     try {
-
-        const cartId = req.body._id
-        
-        const { itemId } = req.params
-
-        console.log("ITEMID ===>", itemId)
-
-        const toPopulate = await Cart.findById(cartId)
-
-        const cart = await toPopulate.populate('items')
-
-        console.log("Cart ===>", cart)
-
-        let item = cart.items.find((thisItem) => thisItem._id.toString() === itemId)
-
-        console.log("Item ====>", item)
-        
-        let remainingItems = cart.items.filter((item) => item._id.toString() !== itemId)
-
-        cart.items = remainingItems
-        cart.subtotal -= item.cost
-        cart.total = cart.subtotal + cart.shipping
-
-        let newCart = await cart.save()
-
-        console.log("New cart ===>", newCart)
-
+  
+        const { itemId } = req.params;
+        const cartId = Object.keys(req.body)[0]
+  
+        const thisCart = await Cart.findById(cartId)
+        const populated = await thisCart.populate("items")
+  
+        const itemsArray = populated.items
+  
+        const thisIndex =  itemsArray.findIndex((element) => element._id.toString() === itemId)
+        const thisItem = itemsArray.find((element) => element._id.toString() === itemId)
+        console.log("This index ===>",thisIndex)
+        console.log("This item ===>",thisItem)
+  
+        itemsArray.splice(thisIndex, 1)
+  
+        populated.subtotal -= thisItem.cost
+        populated.total = Math.floor(populated.subtotal * 1.08
+  )
+        populated.items = itemsArray
+  
+  
+        const newCart = await populated.save()
+  
+        console.log("New cart ====>", newCart)
+  
+        if(!newCart.items.length){
+          Cart.findByIdAndDelete(cartId)
+          .then((deletedCart) => {
+              if (deletedCart) {
+                console.log("Deleted cart ===>",deletedCart)
+                  res.json(deletedCart);
+              } else {
+                  res.status(404).json({ message: 'Item not found' });
+              }
+          })
+          .catch((err) => {
+              console.log(err);
+              next(err);
+          });
+        }
+  
         res.json(newCart)
-
+  
+  
     } catch (err) {
-
-        res.json(err)
         console.log(err)
+        res.json(err)
         next(err)
-    }
-
-  })
+    }})
 
 module.exports = router;
