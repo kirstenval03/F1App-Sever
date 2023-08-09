@@ -7,6 +7,8 @@ const isAuthenticated = require('../middleware/isAuthenticated');
 
 
 router.get('/', isAuthenticated, (req, res, next) => {
+    
+ //FIND CART   
 
     Cart.findOne({
         owner: req.user._id
@@ -24,6 +26,8 @@ router.get('/', isAuthenticated, (req, res, next) => {
         })
 
 });
+
+ //CREATE CART
 
 router.post('/create', isAuthenticated, async (req, res, next) => {
 
@@ -54,6 +58,8 @@ router.post('/create', isAuthenticated, async (req, res, next) => {
 
 })
 
+//UPDATE CART
+
 router.post('/update', isAuthenticated, async (req, res, next) => {
 
     try {
@@ -80,6 +86,8 @@ router.post('/update', isAuthenticated, async (req, res, next) => {
     }
 
 })
+
+//REMOVE AN ITEM
 
 router.post("/remove-item/:itemId", isAuthenticated, (req, res, next) => {
     const { itemId } = req.params;  
@@ -121,6 +129,48 @@ router.post("/remove-item/:itemId", isAuthenticated, (req, res, next) => {
       });
   });
 
+  //INCREASE THE QUANTITY
+
+  router.post("/increase-item/:itemId", isAuthenticated, async (req, res, next) => {
+    try {
+      const { itemId } = req.params;
+      const cartId = Object.keys(req.body)[0];
+  
+      const thisCart = await Cart.findById(cartId).populate("items");
+      const itemsArray = thisCart.items;
+  
+      const thisItem = itemsArray.find((element) => element._id.toString() === itemId);
+  
+      if (thisItem) {
+        thisItem.quantity++; // Increment the quantity
+  
+        // Find the index of the item in itemsArray
+        const itemIndex = itemsArray.findIndex((item) => item._id.toString() === itemId);
+  
+        if (itemIndex !== -1) {
+          itemsArray[itemIndex] = thisItem; // Update the item in the array
+        }
+  
+        thisCart.subtotal += thisItem.cost; // Update the subtotal based on the increased quantity
+        thisCart.total = Math.floor(thisCart.subtotal + 10);
+  
+        // Save the changes
+        const updatedCart = await thisCart.save();
+  
+        res.json(updatedCart); // Return the updated cart
+      } else {
+        res.status(404).json({ message: 'Item not found' });
+      }
+    } catch (err) {
+      console.log(err);
+      res.json(err);
+      next(err);
+    }
+  });
+  
+
+  //DECREASE THE QUANTITY OF ONE ITEM
+
   router.post("/decrease-item/:itemId", isAuthenticated, async (req, res, next) => {
 
     try {
@@ -141,8 +191,7 @@ router.post("/remove-item/:itemId", isAuthenticated, (req, res, next) => {
         itemsArray.splice(thisIndex, 1)
   
         populated.subtotal -= thisItem.cost
-        populated.total = Math.floor(populated.subtotal * 1.08
-  )
+        populated.total = Math.floor(populated.subtotal + 10)
         populated.items = itemsArray
   
   
