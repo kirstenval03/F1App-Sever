@@ -143,6 +143,7 @@ router.post("/remove-item/:itemId", isAuthenticated, (req, res, next) => {
   
       if (thisItem) {
         thisItem.quantity++; // Increment the quantity
+        itemsArray.push(thisItem)
   
         // Find the index of the item in itemsArray
         const itemIndex = itemsArray.findIndex((item) => item._id.toString() === itemId);
