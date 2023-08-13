@@ -25,23 +25,21 @@ router.get('/', (req, res, next) => {
 
 //SEE ITEM DETAILS
 router.get('/item-detail/:itemId', (req, res, next) => {
-
-    const { itemId } = req.params
+    const { itemId } = req.params;
 
     Item.findById(itemId)
         .populate({
             path: 'comments',
-            populate: { path: 'author'}
+            populate: { path: 'author' }
         })
         .then((foundItem) => {
-            res.json(foundItem)
+            res.json(foundItem);
         })
         .catch((err) => {
-            console.log(err)
-            next(err)
-        })
-
-})
+            console.log(err);
+            next(err);
+        });
+});
 
 //CREATE A NEW ITEM
 router.post('/new-item', isAuthenticated, isStaff, (req, res, next) => {
